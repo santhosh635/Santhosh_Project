@@ -1,14 +1,89 @@
-import seaborn as sns
 import matplotlib.pyplot as plt
+import seaborn as sns
 
-# Accident count by time of day
-df['Hour'] = pd.to_datetime(df['Time']).dt.hour
-sns.countplot(x='Hour', data=df)
-plt.title("Accidents by Hour of Day")
-plt.show()
+# Convert date/time columns to datetime objects if they aren't already
+date_time_cols = [col for col in df.columns if 'date' in col.lower() or 'time' in col.lower()]
+for col in date_time_cols:
+    try:
+        df[col] = pd.to_datetime(df[col], errors='coerce') # Handle potential parsing errors
+    except KeyError:
+        print(f"Warning: Column '{col}' not found.")
 
-# Accident frequency by road type
-sns.countplot(x='Road_Type', data=df)
-plt.title("Accidents by Road Type")
-plt.xticks(rotation=45)
-plt.show()
+# Trend by Time
+if any('date' in col.lower() for col in df.columns):
+    df['year'] = df[date_time_cols[0]].dt.year if date_time_cols else None
+    df['month'] = df[date_time_cols[0]].dt.month if date_time_cols else None
+    df['day_of_week'] = df[date_time_cols[0]].dt.day_name() if date_time_cols else None
+    df['hour'] = df[date_time_cols[0]].dt.hour if date_time_cols else None
+
+    if 'year' in df.columns:
+        plt.figure(figsize=(10, 6))
+        sns.countplot(data=df, x='year')
+        plt.title('Accident Frequency by Year')
+        plt.xlabel('Year')
+        plt.ylabel('Frequency')
+        plt.show()
+
+    if 'month' in df.columns:
+        month_order = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December']
+        plt.figure(figsize=(12, 6))
+        sns.countplot(data=df, x='month', order=month_order)
+        plt.title('Accident Frequency by Month')
+        plt.xlabel('Month')
+        plt.ylabel('Frequency')
+        plt.xticks(rotation=45, ha='right')
+        plt.tight_layout()
+        plt.show()
+
+    if 'day_of_week' in df.columns:
+        day_order = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']
+        plt.figure(figsize=(10, 6))
+        sns.countplot(data=df, x='day_of_week', order=day_order)
+        plt.title('Accident Frequency by Day of the Week')
+        plt.xlabel('Day of the Week')
+        plt.ylabel('Frequency')
+        plt.show()
+
+    if 'hour' in df.columns:
+        plt.figure(figsize=(10, 6))
+        sns.countplot(data=df, x='hour')
+        plt.title('Accident Frequency by Hour of the Day')
+        plt.xlabel('Hour of the Day')
+        plt.ylabel('Frequency')
+        plt.xticks(range(24))
+        plt.grid(axis='y', linestyle='--')
+        plt.show()
+
+# Trend by Weather (assuming you have a 'Weather' column)
+if 'Weather' in df.columns:
+    plt.figure(figsize=(12, 6))
+    sns.countplot(data=df, x='Weather')
+    plt.title('Accident Frequency by Weather Condition')
+    plt.xlabel('Weather Condition')
+    plt.ylabel('Frequency')
+    plt.xticks(rotation=45, ha='right')
+    plt.tight_layout()
+    plt.show()
+
+# Trend by Location (if you have location data - you might need to aggregate or visualize on a map)
+if 'Road_Type' in df.columns:
+    plt.figure(figsize=(12, 6))
+    sns.countplot(data=df, x='Road_Type')
+    plt.title('Accident Frequency by Road Type')
+    plt.xlabel('Road Type')
+    plt.ylabel('Frequency')
+    plt.xticks(rotation=45, ha='right')
+    plt.tight_layout()
+    plt.show()
+
+# Visualize accident frequency using factors like time of day and road type
+if 'hour' in df.columns and 'Road_Type' in df.columns:
+    plt.figure(figsize=(14, 8))
+    sns.countplot(data=df, x='Road_Type', hue='hour')
+    plt.title('Accident Frequency by Road Type and Hour of the Day')
+    plt.xlabel('Road Type')
+    plt.ylabel('Frequency')
+    plt.xticks(rotation=45, ha='right')
+    plt.legend(title='Hour of Day')
+    plt.tight_layout()
+    plt.show()
