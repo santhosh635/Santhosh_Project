@@ -1,0 +1,4 @@
+import pandas as pd
+
+# Example: Load dataset from local or URL (e.g., Kaggle/downloaded)
+df = pd.read_csv("accidents.csv")
