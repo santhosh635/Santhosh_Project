@@ -1,0 +1,6 @@
+# Handle missing values
+df.fillna(method='ffill', inplace=True)
+
+# Normalize categorical variables
+df['Weather'] = df['Weather'].str.lower().str.strip()
+df['Road_Type'] = df['Road_Type'].astype('category').cat.codes
