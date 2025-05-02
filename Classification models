@@ -1,0 +1,21 @@
+from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import StandardScaler
+from sklearn.metrics import classification_report, roc_auc_score
+from sklearn.linear_model import LogisticRegression
+from sklearn.ensemble import RandomForestClassifier
+from xgboost import XGBClassifier
+
+# Prepare features and labels
+X = df[['Rush_Hour', 'Weekend', 'Low_Visibility', 'Road_Type']]  # + more if available
+y = df['Accident_Severity']  # Assume binary (0/1) for simplicity
+
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2)
+
+# Logistic Regression
+lr = LogisticRegression().fit(X_train, y_train)
+
+# Random Forest
+rf = RandomForestClassifier().fit(X_train, y_train)
+
+# XGBoost
+xgb = XGBClassifier(use_label_encoder=False, eval_metric='logloss').fit(X_train, y_train)
