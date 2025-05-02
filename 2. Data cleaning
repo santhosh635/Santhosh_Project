@@ -1,6 +1,17 @@
-# Handle missing values
-df.fillna(method='ffill', inplace=True)
+from google.colab import files
+import pandas as pd
+import io
 
-# Normalize categorical variables
-df['Weather'] = df['Weather'].str.lower().str.strip()
-df['Road_Type'] = df['Road_Type'].astype('category').cat.codes
+# Upload the file
+uploaded = files.upload()
+
+# Read the uploaded file into a pandas DataFrame
+# Assuming your file is a CSV, adjust the file extension and separator if needed
+for filename, content in uploaded.items():
+  df = pd.read_csv(io.BytesIO(content)) 
+
+# Now you can use 'df' in the rest of your code
+print("Missing values before handling:")
+print(df.isnull().sum())
+
+# ... (rest of your code)
