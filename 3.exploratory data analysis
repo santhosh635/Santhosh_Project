@@ -1,0 +1,14 @@
+import seaborn as sns
+import matplotlib.pyplot as plt
+
+# Accident count by time of day
+df['Hour'] = pd.to_datetime(df['Time']).dt.hour
+sns.countplot(x='Hour', data=df)
+plt.title("Accidents by Hour of Day")
+plt.show()
+
+# Accident frequency by road type
+sns.countplot(x='Road_Type', data=df)
+plt.title("Accidents by Road Type")
+plt.xticks(rotation=45)
+plt.show()
