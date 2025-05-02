@@ -1,4 +1,12 @@
+from google.colab import files
 import pandas as pd
 
-# Example: Load dataset from local or URL (e.g., Kaggle/downloaded)
-df = pd.read_csv("accidents.csv")
+# Upload the file
+uploaded = files.upload()
+
+# Load the file into a DataFrame
+# Replace 'traffic_accidents_100.csv' with the actual uploaded file name if needed
+df = pd.read_csv(next(iter(uploaded)))
+
+# Display the first few rows
+df.head()
