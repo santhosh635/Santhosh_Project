@@ -1,0 +1,9 @@
+# Rush Hour: 7–9 AM and 4–6 PM
+df['Rush_Hour'] = df['Hour'].apply(lambda x: 1 if 7 <= x <= 9 or 16 <= x <= 18 else 0)
+
+# Weekend Flag
+df['Date'] = pd.to_datetime(df['Date'])
+df['Weekend'] = df['Date'].dt.dayofweek.apply(lambda x: 1 if x >= 5 else 0)
+
+# Low Visibility Conditions
+df['Low_Visibility'] = df['Visibility'].apply(lambda x: 1 if x < 2 else 0)
