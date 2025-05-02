@@ -1,0 +1,7 @@
+import plotly.express as px
+
+# Interactive heatmap
+fig = px.density_mapbox(df, lat='Latitude', lon='Longitude', z='Cluster',
+                        radius=10, center=dict(lat=df['Latitude'].mean(), lon=df['Longitude'].mean()),
+                        zoom=10, mapbox_style="stamen-terrain")
+fig.show()
