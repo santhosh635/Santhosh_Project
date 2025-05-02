@@ -1,9 +1,30 @@
-# Rush Hour: 7–9 AM and 4–6 PM
-df['Rush_Hour'] = df['Hour'].apply(lambda x: 1 if 7 <= x <= 9 or 16 <= x <= 18 else 0)
 
-# Weekend Flag
-df['Date'] = pd.to_datetime(df['Date'])
-df['Weekend'] = df['Date'].dt.dayofweek.apply(lambda x: 1 if x >= 5 else 0)
+# Assuming you have a datetime column (e.g., 'Accident_DateTime')
+datetime_col = None
+for col in df.columns:
+    if 'date' in col.lower() or 'time' in col.lower():
+        datetime_col = col
+        break
 
-# Low Visibility Conditions
-df['Low_Visibility'] = df['Visibility'].apply(lambda x: 1 if x < 2 else 0)
+if datetime_col:
+    df['Rush Hour Indicator'] = df[datetime_col].apply(lambda dt: 1 if (dt.hour >= 8 and dt.hour < 10) or (dt.hour >= 17 and dt.hour < 19) else 0)
+    df['Weekend Flag'] = df[datetime_col].apply(lambda dt: 1 if dt.dayofweek >= 5 else 0) # Monday=0, Sunday=6
+else:
+    print("Warning: No suitable datetime column found for creating time-based features.")
+
+# Low Visibility Conditions (this will depend on your data)
+# If you have a 'Visibility' or 'Weather' column, you can create this feature
+# Example based on a hypothetical 'Weather' column:
+# Check if 'Weather Condition' column exists (adjust if your column name is different)
+if 'Weather Condition' in df.columns:  # Changed from 'Weather' to 'Weather Condition'
+    low_visibility_conditions = ['Fog', 'Mist', 'Smoke', 'Heavy Rain', 'Snow']
+    df['Low Visibility Conditions'] = df['Weather Condition'].apply(lambda weather: 1 if weather in low_visibility_conditions else 0) # Changed from 'Weather' to 'Weather Condition'
+else:
+    print("Warning: No 'Weather Condition' column found to create 'Low Visibility Conditions' feature.") # Changed from 'Weather' to 'Weather Condition'
+
+
+print("\nData with new features:")
+# Print only the columns that were actually created
+print(df[['Rush Hour Indicator', 'Weekend Flag']].head())  
+# Removed 'Low Visibility Conditions' to avoid KeyError if not created
+# If 'Weather Condition' column exists, you can include it in the print statement
