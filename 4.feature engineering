@@ -1,30 +1,35 @@
+from google.colab import files
+import pandas as pd
 
-# Assuming you have a datetime column (e.g., 'Accident_DateTime')
-datetime_col = None
-for col in df.columns:
-    if 'date' in col.lower() or 'time' in col.lower():
-        datetime_col = col
-        break
-
-if datetime_col:
-    df['Rush Hour Indicator'] = df[datetime_col].apply(lambda dt: 1 if (dt.hour >= 8 and dt.hour < 10) or (dt.hour >= 17 and dt.hour < 19) else 0)
-    df['Weekend Flag'] = df[datetime_col].apply(lambda dt: 1 if dt.dayofweek >= 5 else 0) # Monday=0, Sunday=6
-else:
-    print("Warning: No suitable datetime column found for creating time-based features.")
-
-# Low Visibility Conditions (this will depend on your data)
-# If you have a 'Visibility' or 'Weather' column, you can create this feature
-# Example based on a hypothetical 'Weather' column:
-# Check if 'Weather Condition' column exists (adjust if your column name is different)
-if 'Weather Condition' in df.columns:  # Changed from 'Weather' to 'Weather Condition'
-    low_visibility_conditions = ['Fog', 'Mist', 'Smoke', 'Heavy Rain', 'Snow']
-    df['Low Visibility Conditions'] = df['Weather Condition'].apply(lambda weather: 1 if weather in low_visibility_conditions else 0) # Changed from 'Weather' to 'Weather Condition'
-else:
-    print("Warning: No 'Weather Condition' column found to create 'Low Visibility Conditions' feature.") # Changed from 'Weather' to 'Weather Condition'
+# Upload the file
+uploaded = files.upload()
 
 
-print("\nData with new features:")
-# Print only the columns that were actually created
-print(df[['Rush Hour Indicator', 'Weekend Flag']].head())  
-# Removed 'Low Visibility Conditions' to avoid KeyError if not created
-# If 'Weather Condition' column exists, you can include it in the print statement
+import pandas as pd
+
+# Ensure Date and Time are in proper datetime formats
+df['Date'] = pd.to_datetime(df['Date'], errors='coerce')
+df['Time'] = pd.to_datetime(df['Time'], format='%H:%M', errors='coerce').dt.time
+
+# Extract hour from time
+df['Hour'] = pd.to_datetime(df['Time'], format='%H:%M:%S', errors='coerce').apply(lambda t: t.hour if pd.notnull(t) else 0)
+
+# 1. Rush Hour Indicator (7–9 AM and 4–6 PM)
+df['Rush_Hour'] = df['Hour'].apply(lambda h: 1 if (7 <= h <= 9) or (16 <= h <= 18) else 0)
+
+# 2. Weekend Flag (Saturday=5, Sunday=6)
+df['Is_Weekend'] = df['Date'].dt.dayofweek.apply(lambda x: 1 if x >= 5 else 0)
+
+# 3. Low Visibility Condition
+# Conditions include visibility < 1.0 km or weather indicates fog/snow/mist/haze
+def low_visibility(row):
+    weather_str = str(row['Weather_Condition']).lower()
+    low_vis_weather = any(word in weather_str for word in ['fog', 'mist', 'haze', 'snow'])
+    # Check if 'Visibility(mi)' exists before accessing it. If not, assume visibility is not low
+    # You might need to adjust the threshold (1.0) based on the units of your visibility data
+    return 1 if 'Visibility(mi)' in row and row['Visibility(mi)'] < 1.0 or low_vis_weather else 0
+
+df['Low_Visibility'] = df.apply(low_visibility, axis=1)
+
+# View new features
+print(df[['Hour', 'Rush_Hour', 'Is_Weekend', 'Weather_Condition', 'Low_Visibility']].head()) # Removed 'Visibility' from the list
