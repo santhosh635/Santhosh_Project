@@ -1,17 +1,40 @@
 from google.colab import files
 import pandas as pd
-import io
 
 # Upload the file
 uploaded = files.upload()
 
-# Read the uploaded file into a pandas DataFrame
-# Assuming your file is a CSV, adjust the file extension and separator if needed
-for filename, content in uploaded.items():
-  df = pd.read_csv(io.BytesIO(content)) 
+# Load the file into a DataFrame
+# Replace 'traffic_accidents_100.csv' with the actual uploaded file name if needed
+df = pd.read_csv(next(iter(uploaded)))
 
-# Now you can use 'df' in the rest of your code
-print("Missing values before handling:")
+# Display the first few rows
+print("Sample Data:")
+print(df.head())  # Prints the first 5 rows
+
+# Check for missing values
+print("\nMissing Values:")
 print(df.isnull().sum())
 
-# ... (rest of your code)
+# Fill missing values
+df.fillna({
+    'Weather_Condition': 'Unknown',
+    'Road_Condition': 'Unknown',
+    'Sunrise_Sunset': 'Day'
+}, inplace=True)
+
+# Normalize categorical values (simplify categories)
+df['Weather_Condition'] = df['Weather_Condition'].str.lower().str.strip()
+
+# Optional: convert datetime
+if 'Start_Time' in df.columns:
+    df['Start_Time'] = pd.to_datetime(df['Start_Time'])
+    print("\nSample Data with Converted DateTime:")
+    print(df[['Start_Time']].head())  # Prints Start_Time column after conversion
+else:
+    print("\nColumn 'Start_Time' not found in the DataFrame.")
+    # If the column has a different name, replace 'actual_column_name'
+    # with the correct name and uncomment the following line:
+    # df['actual_column_name'] = pd.to_datetime(df['actual_column_name'])
+    # print("\nSample Data with Converted DateTime:")
+    # print(df[['actual_column_name']].head())
