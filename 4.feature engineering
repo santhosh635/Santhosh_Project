@@ -23,8 +23,14 @@ df['Is_Weekend'] = df['Date'].dt.dayofweek.apply(lambda x: 1 if x >= 5 else 0)
 # 3. Low Visibility Condition
 # Conditions include visibility < 1.0 km or weather indicates fog/snow/mist/haze
 def low_visibility(row):
-    weather_str = str(row['Weather_Condition']).lower()
-    low_vis_weather = any(word in weather_str for word in ['fog', 'mist', 'haze', 'snow'])
+    # Check if 'Weather_Condition' exists in the DataFrame before accessing it.
+    # If not, assume visibility is not low due to weather conditions.
+    if 'Weather_Condition' in df.columns:
+        weather_str = str(row['Weather_Condition']).lower()
+        low_vis_weather = any(word in weather_str for word in ['fog', 'mist', 'haze', 'snow'])
+    else:
+        low_vis_weather = False
+
     # Check if 'Visibility(mi)' exists before accessing it. If not, assume visibility is not low
     # You might need to adjust the threshold (1.0) based on the units of your visibility data
     return 1 if 'Visibility(mi)' in row and row['Visibility(mi)'] < 1.0 or low_vis_weather else 0
@@ -32,4 +38,4 @@ def low_visibility(row):
 df['Low_Visibility'] = df.apply(low_visibility, axis=1)
 
 # View new features
-print(df[['Hour', 'Rush_Hour', 'Is_Weekend', 'Weather_Condition', 'Low_Visibility']].head()) # Removed 'Visibility' from the list
+print(df[['Hour', 'Rush_Hour', 'Is_Weekend', 'Low_Visibility']].head())
