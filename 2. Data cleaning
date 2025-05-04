@@ -17,14 +17,19 @@ print("\nMissing Values:")
 print(df.isnull().sum())
 
 # Fill missing values
-df.fillna({
-    'Weather_Condition': 'Unknown',
-    'Road_Condition': 'Unknown',
-    'Sunrise_Sunset': 'Day'
-}, inplace=True)
+# Check if the column exists before filling
+if 'Weather_Condition' in df.columns:
+    df['Weather_Condition'].fillna('Unknown', inplace=True)
+if 'Road_Condition' in df.columns:
+    df['Road_Condition'].fillna('Unknown', inplace=True)
+if 'Sunrise_Sunset' in df.columns:
+    df['Sunrise_Sunset'].fillna('Day', inplace=True)
+
 
 # Normalize categorical values (simplify categories)
-df['Weather_Condition'] = df['Weather_Condition'].str.lower().str.strip()
+# Check if the column exists before normalizing
+if 'Weather_Condition' in df.columns:
+    df['Weather_Condition'] = df['Weather_Condition'].str.lower().str.strip()
 
 # Optional: convert datetime
 if 'Start_Time' in df.columns:
